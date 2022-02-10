@@ -4,7 +4,13 @@ import sqlite3
 
 app = Flask(__name__)
 
+app.secret_key = urandom(16)
 
+@app.route("/")
+def index():
+    if not session.get("username"):
+        return redirect("/login")
+    return render_template("index.html")
 
 @app.route('/create')
 def create():
@@ -18,15 +24,31 @@ def create():
 	con.commit()
 	return 'CREATE'
 
-@app.route('/insert')
-def insert():
-	con = sqlite3.connect('login.db')
-	cur = con.cursor()
-	cur.execute(	"""	INSERT INTO Users (Username, Password)
-					VALUES ("Bob", "123")
-			""")
-	con.commit()
-	return 'INSERT'
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'GET':
+        return render_template('signup.html')
+    con = sqlite3.connect('login.db')
+    cur = con.cursor()
+    cur.execute("INSERT INTO Users (Username, Password) VALUES (?,?)",
+                    (request.form['username'],request.form['password']))
+    con.commit()
+    return request.form['username'] + ' added'
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    con = sqlite3.connect('login.db')
+    cur = con.cursor()
+    cur.execute("SELECT * FROM Users WHERE Username=? AND Password=?",
+                    (request.form['username'],request.form['password']))
+    match = len(cur.fetchall())
+    if match == 0:
+        return "Wrong username and password"
+    else:
+        session["username"] = request.form.get("username")
+        return render_template('index.html')
 
 @app.route('/select')
 def select():
@@ -36,27 +58,7 @@ def select():
 	rows = cur.fetchall()
 	return str(rows)
 
-
-
-app.secret_key = urandom(16)
-
-
-@app.route("/")
-def index():
-    if not session.get("user_id"):
-        return redirect("/login")
-    return render_template("index.html")
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        session["user_id"] = request.form.get("username")
-        return redirect("/")
-    return render_template("login.html")
-
-
 @app.route("/logout")
 def logout():
-    session["user_id"] = None
+    session["username"] = None
     return redirect("/")
