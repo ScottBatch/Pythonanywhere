@@ -6,11 +6,11 @@ app = Flask(__name__)
 
 app.secret_key = urandom(16)
 
-@app.route("/")
+@app.route('/')
 def index():
-    if not session.get("username"):
-        return redirect("/login")
-    return render_template("index.html")
+    if not session.get('username'):
+        return redirect('/login')
+    return render_template('index.html')
 
 @app.route('/create')
 def create():
@@ -33,7 +33,8 @@ def signup():
     cur.execute("INSERT INTO Users (Username, Password) VALUES (?,?)",
                     (request.form['username'],request.form['password']))
     con.commit()
-    return request.form['username'] + ' added'
+    session['username'] = request.form.get('username')
+    return redirect('/')
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -45,20 +46,20 @@ def login():
                     (request.form['username'],request.form['password']))
     match = len(cur.fetchall())
     if match == 0:
-        return "Wrong username and password"
+        return 'Wrong username and password'
     else:
-        session["username"] = request.form.get("username")
-        return render_template('index.html')
+        session['username'] = request.form.get('username')
+        return redirect('/')
 
 @app.route('/select')
 def select():
 	con = sqlite3.connect('login.db')
 	cur = con.cursor()
-	cur.execute("SELECT * FROM Users")
+	cur.execute('SELECT * FROM Users')
 	rows = cur.fetchall()
 	return str(rows)
 
-@app.route("/logout")
+@app.route('/logout')
 def logout():
-    session["username"] = None
-    return redirect("/")
+    session['username'] = None
+    return redirect('/')
