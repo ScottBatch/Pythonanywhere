@@ -59,6 +59,46 @@ def select():
 	rows = cur.fetchall()
 	return str(rows)
 
+@app.route('/hands', methods=['GET', 'POST'])
+def hands():
+    if request.method == 'GET':
+        return render_template('hands.html')
+    con = sqlite3.connect('login.db')
+    cur = con.cursor()
+    con.commit()
+    session['username'] = request.form.get('username')
+    return redirect('/')
+
+@app.route('/rules', methods=['GET', 'POST'])
+def rules():
+    if request.method == 'GET':
+        return render_template('rules.html')
+    con = sqlite3.connect('login.db')
+    cur = con.cursor()
+    con.commit()
+    session['username'] = request.form.get('username')
+    return redirect('/')
+
+@app.route('/play', methods=['GET', 'POST'])
+def play():
+    if request.method == 'GET':
+        return render_template('play.html')
+    con = sqlite3.connect('login.db')
+    cur = con.cursor()
+    con.commit()
+    session['username'] = request.form.get('username')
+    return redirect('/')
+
+@app.route('/account', methods=['GET', 'POST'])
+def account():
+    if request.method == 'GET':
+        return render_template('account.html')
+    con = sqlite3.connect('login.db')
+    cur = con.cursor()
+    con.commit()
+    session['username'] = request.form.get('username')
+    return redirect('/')
+
 @app.route('/logout')
 def logout():
     session['username'] = None
