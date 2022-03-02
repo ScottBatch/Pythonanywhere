@@ -1,6 +1,11 @@
 from flask import Flask, redirect, render_template, session, request
 from os import urandom
 import sqlite3
+import deck
+index = -1
+Deck = []
+Deck = deck.CreateDeck(Deck)
+Deck = deck.ShuffleDeck(Deck)
 
 app = Flask(__name__)
 
@@ -59,45 +64,31 @@ def select():
 	rows = cur.fetchall()
 	return str(rows)
 
-@app.route('/hands', methods=['GET', 'POST'])
+@app.route('/hands')
 def hands():
-    if request.method == 'GET':
-        return render_template('hands.html')
-    con = sqlite3.connect('login.db')
-    cur = con.cursor()
-    con.commit()
-    session['username'] = request.form.get('username')
-    return redirect('/')
+    if not session.get('username'):
+        return redirect('/login')
+    return render_template('hands.html')
 
-@app.route('/rules', methods=['GET', 'POST'])
+@app.route('/rules')
 def rules():
-    if request.method == 'GET':
-        return render_template('rules.html')
-    con = sqlite3.connect('login.db')
-    cur = con.cursor()
-    con.commit()
-    session['username'] = request.form.get('username')
-    return redirect('/')
+    if not session.get('username'):
+        return redirect('/login')
+    return render_template('rules.html')
 
-@app.route('/play', methods=['GET', 'POST'])
+@app.route('/play')
 def play():
-    if request.method == 'GET':
-        return render_template('play.html')
-    con = sqlite3.connect('login.db')
-    cur = con.cursor()
-    con.commit()
-    session['username'] = request.form.get('username')
-    return redirect('/')
+    if not session.get('username'):
+        return redirect('/login')
+    return render_template('play.html')
+def home():
+    return str(index) + " : " + str(deck.GetCard(Deck, index))
 
-@app.route('/account', methods=['GET', 'POST'])
+@app.route('/account')
 def account():
-    if request.method == 'GET':
-        return render_template('account.html')
-    con = sqlite3.connect('login.db')
-    cur = con.cursor()
-    con.commit()
-    session['username'] = request.form.get('username')
-    return redirect('/')
+    if not session.get('username'):
+        return redirect('/login')
+    return render_template('account.html')
 
 @app.route('/logout')
 def logout():
